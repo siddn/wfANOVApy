@@ -14,6 +14,9 @@ Install instructions:
 
 .. toctree::
    :maxdepth: 2
+   example.md
+   install.md
+   usage.md
    :caption: Contents:
 
 
