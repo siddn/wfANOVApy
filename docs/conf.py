@@ -41,7 +41,7 @@ myst_enable_extensions = [
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_permalinks_icon = '<span>#</span>'
-html_theme = 'sphinxawesome_theme'
+html_theme = 'sphinx_book_theme'
 html_static_path = ['_static']
 htmlhelp_basename = 'SphinxwithMarkdowndoc'
 
