@@ -19,6 +19,7 @@ extensions = ["myst_parser"]
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 source_suffix = ['.rst', '.md']
+master_doc = 'index'
 
 
 
@@ -27,5 +28,5 @@ source_suffix = ['.rst', '.md']
 
 html_theme = 'alabaster'
 html_static_path = ['_static']
+htmlhelp_basename = 'SphinxwithMarkdowndoc'
 
-master_doc = 'index'

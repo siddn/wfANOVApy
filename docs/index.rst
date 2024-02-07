@@ -8,6 +8,7 @@ wfANOVApy: A Python package for waveform analysis in biomechanics data
 
 .. toctree::
    :maxdepth: 2
+
    install.md
    usage.md
 
