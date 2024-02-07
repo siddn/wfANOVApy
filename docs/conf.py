@@ -14,7 +14,10 @@ release = '0.0.1'
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 
-extensions = ["myst_parser"]
+xtensions = [
+    'myst_parser',
+    'sphinx.ext.intersphinx',
+    'sphinxcontrib.youtube']
 source_suffix = ['.rst', '.md']
 master_doc = 'index'
 
@@ -40,7 +43,14 @@ myst_enable_extensions = [
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_permalinks_icon = '<span>#</span>'
+# html_permalinks_icon = '<span>#</span>'
+# html_theme_options = {
+#     "sidebar_hide_name": True,
+# }
+
+html_title = "wfANOVApy"
+
+
 html_theme = 'sphinx_book_theme'
 html_static_path = ['_static']
 htmlhelp_basename = 'SphinxwithMarkdowndoc'
