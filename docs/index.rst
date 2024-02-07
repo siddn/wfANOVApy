@@ -11,12 +11,3 @@ wfANOVApy: A Python package for waveform analysis in biomechanics data
 
    install.md
    usage.md
-
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
