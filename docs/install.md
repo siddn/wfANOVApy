@@ -8,7 +8,7 @@ Boom! you're all good to go.
 :class: warning
 
 This text is **standard** _Markdown_
-:::
+::::
 
 ::::{important}
 :::{note}
