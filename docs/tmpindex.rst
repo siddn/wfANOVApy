@@ -5,16 +5,9 @@
 
 wfANOVApy: A Python package for waveform analysis in biomechanics data
 =====================================
-This package is designed to aid with blah blah blah
-Install instructions:
-      pip install wfANOVApy
-
-   import wfANOVApy as wf
-   wf.test()
 
 .. toctree::
    :maxdepth: 2
-   example.md
    install.md
    usage.md
    :caption: Contents:
