@@ -10,4 +10,3 @@ wfANOVApy: A Python package for waveform analysis in biomechanics data
    :maxdepth: 2
 
    install.md
-   usage.md
