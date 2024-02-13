@@ -110,9 +110,9 @@ def wfANOVAtest(data, factors, posthoc_factors, factor_labels=None, alpha=0.05):
     for i in range(1):
         current_datapt = wavedata[i,:]
         currentdf = pd.DataFrame(np.row_stack([current_datapt, factors.T]).T, columns=['coef', 'vel', 'acc', 'subj'])
-        model = ols('coef ~ C(vel) + C(acc) + C(subj)',data=currentdf).fit()
+        model = ols('coef ~ C(vel) + C(acc) + C(subj)',data=currentdf,).fit()
         anova_results = sm.stats.anova_lm(model, typ=3).round(3)
-        anova_res_2 = pg.anova(data=currentdf, dv='coef', between=['vel', 'acc', 'subj']).round(3)
+        anova_res_2 = pg.anova(data=currentdf, dv='coef', between=['vel', 'acc', 'subj'], detailed=True, ss_type=3).round(6)
         print(anova_res_2)
         print(anova_results)
         pvals = anova_results['PR(>F)'].to_list()[1:-1]
@@ -121,9 +121,9 @@ def wfANOVAtest(data, factors, posthoc_factors, factor_labels=None, alpha=0.05):
 
     all_pvals = np.array(full_results)
 
-    print(f'{all_pvals.shape=}')
+    # print(f'{all_pvals.shape=}')
     posthoc_results = pg.pairwise_tukey(data=currentdf, dv='coef', between='subj').round(3)
-    print(posthoc_results)
+    # print(posthoc_results)
     # for i in range(len(posthoc_factors)):
     #     waveletcoeffs = np.zeros(n_datapoints, 1)
     #     if posthoc_factors[i] is True:
