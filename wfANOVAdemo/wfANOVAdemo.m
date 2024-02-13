@@ -22,8 +22,6 @@ function [] = wfANOVAdemo()
 load wfANOVAdata
 data = TA;
 factors = [V A S];
-disp("FactorsSize")
-disp(size(factors))
 % the data are as follows:
 %  Tibialis anterior EMG, replicates x time samples:
 %   TA        439x512            1798144  double
@@ -78,32 +76,40 @@ for j = 1:npnts
     [t_p(:,j),~,stats{j}] = anovan(wavedata(:,j),group,'display',display,'alpha',alpha);
     waitbar(j/npnts,han);
 end
-disp("TP")
-disp(t_p(:,1))
-disp(stats{1})
-disp(group(1,:))
 close(han)
 contrasts = {};
 for j = 1:length(performposthoc)
+    disp(j)
     % perform post-hoc tests for each flagged factor.
     if performposthoc(j)
         tempwavecontrast = posthocsub(t_p(j,:),alpha,stats,j);
+        disp(find(tempwavecontrast(1,:)~=0))
         temptimecontrast = inversewavelettransform(tempwavecontrast,waveparams);
         contrasts{j} = temptimecontrast;
     end
 end
+% figure
+% disp(size(tempwavecontrast))
+% disp("hereher")
+% stem(tempwavecontrast(1,:))
+% hold on
+% plot(temptimecontrast(1,:))
+% disp(find(tempwavecontrast(1,:)~=0))
+% figure
+% stem(tempwavecontrast(2,:))
+% disp(find(tempwavecontrast(2,:)~=0))
+
 varargout = contrasts(logical(performposthoc));
 end
 
 function contrasts = posthocsub(pvals,alpha,stats,dim)
 % type of critical value used for post hoc tests
-ctype = 'scheffe';
+ctype = 'bonferroni';
 % don't display detailed results
 display = 'off';
 % calculate p-values for post-hoc tests
+disp(size(pvals))
 posthocalpha = alpha/sum(pvals<alpha);
-disp('here')
-disp(posthocalpha)
 % figure out the maximum levels for post-hoc tests from the stats
 % structure
 maxcontrast = stats{1}.nlevels(dim)-1;
@@ -112,7 +118,6 @@ contrasts = zeros(maxcontrast,length(pvals));
 % loop through and do the comparison
 for j = 1:length(stats)
     if pvals(j)<alpha
-        disp("pval<alpha")
         clear temp
         [temp.contrasts, temp.means] = multcompare(stats{j},'dimension',dim,'display',display,'ctype',ctype,'alpha',posthocalpha);
         for k = 1:maxcontrast
@@ -256,7 +261,7 @@ vlevs = unique(V);
 subplot(nrows,ncols,6)
 plotrawdata(time,data((V==4)&(A==2),:));
 title(['40 cm/s; 0.2 g'])
-disp(length(data((V==4)&(A==2),:)))
+
 subplot(nrows,ncols,10)
 plotrawdata(time,data((V==3)&(A==2),:));
 title(['35 cm/s; 0.2 g'])

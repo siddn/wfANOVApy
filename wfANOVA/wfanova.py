@@ -8,6 +8,8 @@ import pywt
 import statsmodels.api as sm
 from statsmodels.formula.api import ols
 from statsmodels.stats.multicomp import pairwise_tukeyhsd
+from scipy.stats import tukey_hsd
+# import scikit_posthocs as sp
 
 
 sns.set_palette('flare') # change palette to 'crest' for a cool version
@@ -97,17 +99,62 @@ def plot_contrasts():
         axs[i-1].set_xlim([0,1])
 
     sns.despine()
-            
-def wfANOVAtest(data, factors, posthoc_factors, factor_labels=None, alpha=0.05):
-    indexing_array = [len(component) for component in data[0]]
-    wavedata = np.array([np.concatenate(wavedatapt) for wavedatapt in data]).T
+
+def wfANOVAoneway(data, factors, alpha=0.05, orientation='v', use_posthoc_alpha=True):
+    wavedata = np.array([pywt.coeffs_to_array(data[i])[0] for i in range(len(data))]).T
+    coeff_slices = [pywt.coeffs_to_array(data[i])[1] for i in range(len(data))]
     n_datapoints = wavedata.shape[0]
-    n_repetitions = wavedata.shape[1]
-    full_results = []
+    all_pvals = []
     significant = []
-    sources = None
+    for i in range(n_datapoints):
+        current_datapt = wavedata[i,:]
+        currentdf = pd.DataFrame(np.row_stack([current_datapt, factors.T]).T)
+        anova_res = pg.anova(data=currentdf, dv=0, between=1, detailed=True)
+        pvals = anova_res['p-unc'][0]
+        all_pvals.append(pvals)
+        if pvals < alpha: significant.append(True)
+        else: significant.append(False)
+
+    all_pvals = np.array(all_pvals)
+
+    n_contrasts = anova_res['DF'][0]
+    wave_contrasts = np.zeros((n_datapoints, anova_res['DF'][0]))
+    if use_posthoc_alpha:posthoc_alpha = alpha/np.sum(all_pvals < alpha) # Why do this posthoc_alpha thing?
+    else: posthoc_alpha = alpha
+    for i in range(n_datapoints):
+        if significant[i] is True:
+            current_datapt = wavedata[i,:]
+            currentdf = pd.DataFrame(np.row_stack([current_datapt, factors.T]).T)
+            tukey_posthoc_res = pg.pairwise_tukey(data=currentdf, dv=0, between=1)
+            posthoc_res = pg.pairwise_tests(data=currentdf, dv=0, between=1, padjust='bonf', return_desc=True).round(5)
+            for j in range(n_contrasts):
+                if posthoc_res['p-unc'][j] < posthoc_alpha:
+                    wave_contrasts[i,j] = -tukey_posthoc_res['diff'][j]
+                    # wave_contrasts[i,j] = -posthoc_res['mean(B)'][j] + posthoc_res['mean(A)'][j]
+
+    print(posthoc_res)
+    print(currentdf)
+
+    contrasts = np.zeros((n_datapoints, anova_res['DF'][0]))
+    for i in range(n_contrasts):
+        contrasts[:,i] = wavelet_reconstruction(pywt.array_to_coeffs(wave_contrasts[:,i], coeff_slices=coeff_slices[0], output_format='wavedec'))
+
+    if orientation == 'h':  fig, axs = plt.subplots(1, n_contrasts, figsize=(5,1))
+    else: fig, axs = plt.subplots(n_contrasts,1, figsize=(1,3))
+    for i in range(n_contrasts):
+        if orientation == 'h': ax = axs[i]
+        else: ax = axs[n_contrasts - i - 1]
+        ax.plot(time, contrasts[:,i], 'r', linewidth=0.3)
+        ax.set_xlim([0,1])
+        ax.set_ylim([-0.5,0.5])
+    
+def wfANOVAtest(data, factors, posthoc_factors, factor_labels=None, alpha=0.05):
+    wavedata = np.array([pywt.coeffs_to_array(data[i])[0] for i in range(len(data))]).T
+    coeff_slices = [pywt.coeffs_to_array(data[i])[1] for i in range(len(data))]
+    n_datapoints = wavedata.shape[0]
+    full_results = []
     # Initial N-Way ANOVA test
-    for i in range(1):
+    for i in range(n_datapoints):
         current_datapt = wavedata[i,:]
         currentdf = pd.DataFrame(np.row_stack([current_datapt, factors.T]).T, columns=['coef', 'vel', 'acc', 'subj'])
         model = ols('coef ~ C(vel) + C(acc) + C(subj)',data=currentdf,).fit()
@@ -116,38 +163,80 @@ def wfANOVAtest(data, factors, posthoc_factors, factor_labels=None, alpha=0.05):
         print(anova_res_2)
         print(anova_results)
         pvals = anova_results['PR(>F)'].to_list()[1:-1]
-        significant.append([True if pval<=alpha else False for pval in pvals])
         full_results.append(pvals)
 
     all_pvals = np.array(full_results)
-
-    # print(f'{all_pvals.shape=}')
-    posthoc_results = pg.pairwise_tukey(data=currentdf, dv='coef', between='subj').round(3)
-    # print(posthoc_results)
-    # for i in range(len(posthoc_factors)):
-    #     waveletcoeffs = np.zeros(n_datapoints, 1)
-    #     if posthoc_factors[i] is True:
-    #         current_pvals = all_pvals[:,i]
-    #         for pval in current_pvals:
-    #             if pval <= alpha:
-    #                 posthoc_results = pg.pairwise_tukey(data=)
-    # #                 posthoce_results = pairwise_tukeyhsd
+    print(f'{all_pvals.shape=}')
 
 
-            
-    
-    return full_results, significant, sources
+    vel_pvals = all_pvals[:,0]
+    posthoc_alpha = alpha/np.sum(vel_pvals<alpha)
+    contrast1 = []
+    contrast2 = []
+    contrast3 = []
+    for i in range(n_datapoints):
+        current_datapt = wavedata[i,:]
+        currentdf = pd.DataFrame(np.row_stack([current_datapt, factors.T]).T, columns=['coef', 'vel', 'acc', 'subj'])
 
+        if  vel_pvals[i] < alpha:
+            # posthoc_results = pg.pairwise_tests(data=currentdf, dv='coef', between='vel', padjust='bonf', return_desc=True).round(5)
+            posthoc_results = pg.pairwise_tukey(data=currentdf, dv='coef', between='vel').round(5)
+            # posthoc_2 = tukey_hsd(currentdf[currentdf['vel']==0]['coef'], currentdf[currentdf['vel']==1]['coef'], currentdf[currentdf['vel']==2]['coef'], currentdf[currentdf['vel']==3]['coef'])
+            if posthoc_results['p-tukey'][0] < posthoc_alpha:
+                # contrast1.append(posthoc_results['mean(B)'][0]-posthoc_results['mean(A)'][0])
+                contrast1.append(-posthoc_results['diff'][0])
+            else:
+                contrast1.append(0)
 
+            if posthoc_results['p-tukey'][1] < posthoc_alpha:
+                # contrast2.append(posthoc_results['mean(B)'][1]-posthoc_results['mean(A)'][1])
+                contrast2.append(-posthoc_results['diff'][1])
+            else:
+                contrast2.append(0)
+
+            if posthoc_results['p-tukey'][2] < posthoc_alpha:
+                # contrast3.append(posthoc_results['mean(B)'][2]-posthoc_results['mean(A)'][2])
+                contrast3.append(-posthoc_results['diff'][2])
+            else:
+                contrast3.append(0)
+        else:
+            contrast1.append(0)
+            contrast2.append(0)
+            contrast3.append(0)
+
+    # print(posthoc_2)
+    # print(posthoc_2.confidence_interval())
+    print(np.nonzero(np.array(contrast1)))
+    # Realign Wavelet Coefficients
+    new_wavelet_coef1 = pywt.array_to_coeffs(contrast1, coeff_slices=coeff_slices[0], output_format='wavedec')
+    new_wavelet_coef2 = pywt.array_to_coeffs(contrast2, coeff_slices=coeff_slices[0], output_format='wavedec')
+    new_wavelet_coef3 = pywt.array_to_coeffs(contrast3, coeff_slices=coeff_slices[0], output_format='wavedec')
+
+    reconstructed1 = wavelet_reconstruction(coefficients=new_wavelet_coef1)
+    reconstructed2 = wavelet_reconstruction(coefficients=new_wavelet_coef2)
+    reconstructed3 = wavelet_reconstruction(coefficients=new_wavelet_coef3)
+
+    fig, axs = plt.subplots(3,1, figsize=(5,2))
+    axs[0].plot(time, reconstructed1)
+    axs[1].plot(time, reconstructed2)
+    axs[2].plot(time, reconstructed3)
+
+    axs[0].set_xlim([0,1])
+    axs[1].set_xlim([0,1])
+    axs[2].set_xlim([0,1])
+
+    return full_results
+
+# plot_contrasts()
+plot_grid()
 test_data = ta_amplitude
 wavedata = wavelet_decomposition(test_data)
 
-results, significances, sources = wfANOVAtest(wavedata, factors, [True, True, False])
-print(results[0])
-print(significances[0])
-print(factors[0,:])
-print(sources)
+# # results = wfANOVAtest(wavedata, factors, [True, True, False])
 
+wfANOVAoneway(wavedata, velocity, orientation='v', use_posthoc_alpha=True)
+wfANOVAoneway(wavedata, acceleration, orientation='h', use_posthoc_alpha=True)
+plt.show()
 
 
 # fig = plt.figure(figsize=(3,1))
