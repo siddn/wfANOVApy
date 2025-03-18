@@ -1,0 +1,26 @@
+Metadata-Version: 2.2
+Name: wfANOVApy
+Version: 0.1.0
+Summary: TEST
+Author-email: Siddharth Nathella <snathella@gatech.edu>
+Maintainer-email: Siddharth Nathella <snathella@gatech.edu>
+Project-URL: Homepage, https://example.com
+Project-URL: Documentation, https://readthedocs.org
+Project-URL: Repository, https://github.com/me/spam.git
+Project-URL: Issues, https://github.com/me/spam/issues
+Project-URL: Changelog, https://github.com/me/spam/blob/master/CHANGELOG.md
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Science/Research
+Classifier: Private :: Do Not Upload
+Requires-Python: >=3.9
+Requires-Dist: numpy
+Requires-Dist: python-can
+Requires-Dist: scipy
+Requires-Dist: PyWavelets
+Requires-Dist: scikit-learn
+Requires-Dist: matplotlib

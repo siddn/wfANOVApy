@@ -5,7 +5,7 @@ import pingouin as pg
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pywt
-import _wavetools
+import wfANOVA._wavetools
 
 sns.set_palette('flare') # change palette to 'crest' for a cool version
 

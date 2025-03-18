@@ -1,0 +1,11 @@
+README.md
+pyproject.toml
+wfANOVA/__init__.py
+wfANOVA/_wavetools.py
+wfANOVA/wavestats.py
+wfANOVA/wfanova.py
+wfANOVA.egg-info/PKG-INFO
+wfANOVA.egg-info/SOURCES.txt
+wfANOVA.egg-info/dependency_links.txt
+wfANOVA.egg-info/requires.txt
+wfANOVA.egg-info/top_level.txt
