@@ -51,7 +51,7 @@ myst_enable_extensions = [
 html_title = "wfANOVApy"
 
 
-html_theme = 'sphinx_book_theme'
+html_theme = 'sphinx_rtd_theme'
 html_static_path = ['_static']
 htmlhelp_basename = 'SphinxwithMarkdowndoc'
 
