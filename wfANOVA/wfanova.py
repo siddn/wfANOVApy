@@ -3,6 +3,7 @@ import scipy as sp
 import pandas as pd
 import pingouin as pg
 import matplotlib.pyplot as plt
+import matplotlib.colors as mcolors
 import seaborn as sns
 import pywt
 import statsmodels.api as sm

@@ -33,9 +33,13 @@ def wttest(x:np.ndarray, y:np.ndarray, alpha=0.05, draw=False, correction=None):
     wavelets_x = np.vstack([np.concatenate(coeffs) for coeffs in wavelets_x]).T
     wavelets_y = np.vstack([np.concatenate(coeffs) for coeffs in wavelets_y]).T
 
+    print(wavelets_x.shape, wavelets_y.shape)
+
+
     mean_x = wavelets_x.mean(axis=1)
     mean_y = wavelets_y.mean(axis=1)
 
+    print(mean_x.shape, mean_y.shape)
     # Pass 1
     pvals = np.array([pg.ttest(wavelets_x[i,:], wavelets_y[i,:], correction='auto')['p-val'].values[0] for i in range(signal_length)])
     num_significant_points = np.sum(pvals < alpha)
@@ -78,8 +82,12 @@ if __name__ == "__main__":
     velocity3_data = emg[:,(velocity==2)]
     velocity4_data = emg[:,(velocity==3)]
 
-    result1 = wttest(velocity1_data, velocity2_data, alpha=0.01, draw=True, correction='auto')
-    result2 = wttest(velocity1_data, velocity3_data, alpha=0.01, draw=True, correction='auto')
+    # print(velocity1_data.shape)
+    # print(velocity2_data.shape)
+    result1 = wttest(velocity1_data, velocity2_data, alpha=0.01, draw=False, correction='auto')
+    result2 = wttest(velocity1_data, velocity3_data, alpha=0.01, draw=False, correction='auto')
+    plt.plot(time, velocity1_data.mean(axis=1))
+    plt.plot(time, velocity2_data.mean(axis=1))
     plt.plot(time, result1)
     plt.xlim([0,1])
     plt.ylim([-.5,.5])
