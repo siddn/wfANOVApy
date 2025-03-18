@@ -18,7 +18,10 @@ dependencies = [
     "PyWavelets",
     "scikit-learn",
     "matplotlib",
-    "pandas"
+    "pandas",
+    "seaborn",
+    "statsmodels",
+    "pingouin",
 ]
 classifiers = [
     "Programming Language :: Python :: 3",
